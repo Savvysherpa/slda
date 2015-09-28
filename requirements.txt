@@ -1,0 +1,6 @@
+Cython==0.23.2
+CythonGSL==0.2.1
+numpy==1.9.3
+pypolyagamma==0.2
+scipy==0.16.0
+wheel==0.24.0
