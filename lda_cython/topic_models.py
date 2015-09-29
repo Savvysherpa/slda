@@ -343,10 +343,11 @@ class GRTM(TopicModelBase):
 
     def _create_edges(self, y, order='tail'):
         y.sort(order=order)
+        _docs, _counts = np.unique(y[order], return_counts=True)
+        counts = np.zeros(self.n_docs)
+        counts[_docs] = _counts
         docs = np.ascontiguousarray(
-            np.concatenate(([0], np.cumsum(np.unique(y[order],
-                                                     return_counts=True)[1]))),
-            dtype=np.intc)
+            np.concatenate(([0], np.cumsum(counts))), dtype=np.intc)
         edges = np.ascontiguousarray(y['index'].flatten(), dtype=np.intc)
         return docs, edges
 
