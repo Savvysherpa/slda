@@ -220,8 +220,8 @@ class SLDA(TopicModelBase):
 
 class BLSLDA(TopicModelBase):
     """
-    Binary logistic supervised latent Dirichlet allocation, using collapsed Gibbs
-    sampling implemented in Cython.
+    Binary logistic supervised latent Dirichlet allocation, using collapsed
+    Gibbs sampling implemented in Cython.
 
     Parameters
     ----------
@@ -376,9 +376,12 @@ class GRTM(TopicModelBase):
         # we use a view here so that we can sort in-place using named columns
         y_rec = y.view(dtype=list(zip(('index', 'tail', 'head', 'data'),
                                       4 * [y.dtype])))
-        edge_tail = np.ascontiguousarray(y_rec['tail'].flatten(), dtype=np.intc)
-        edge_head = np.ascontiguousarray(y_rec['head'].flatten(), dtype=np.intc)
-        edge_data = np.ascontiguousarray(y_rec['data'].flatten(), dtype=np.float64)
+        edge_tail = np.ascontiguousarray(y_rec['tail'].flatten(),
+                                         dtype=np.intc)
+        edge_head = np.ascontiguousarray(y_rec['head'].flatten(),
+                                         dtype=np.intc)
+        edge_data = np.ascontiguousarray(y_rec['data'].flatten(),
+                                         dtype=np.float64)
         out_docs, out_edges = self._create_edges(y_rec, order='tail')
         in_docs, in_edges = self._create_edges(y_rec, order='head')
         # iterate
