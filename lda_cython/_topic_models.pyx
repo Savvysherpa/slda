@@ -758,7 +758,7 @@ def gibbs_sampler_grtm(int n_iter, int n_report_iter,
             p_sum = 0.
             for k in range(n_topics):
                 kappa_sum = 0.
-                for n in range(in_docs[d], in_docs[d + 1] - 1):
+                for n in range(in_docs[d], in_docs[d + 1]):
                     e = in_edges[n]
                     d1 = edge_tail[e]
                     Nd = nd[d1] * nd[d]
@@ -767,7 +767,7 @@ def gibbs_sampler_grtm(int n_iter, int n_report_iter,
                         zeta_sum -= ndz[d1, k1] * H[i, k1, z] / Nd
                     kappa_sum += (kappa[e] - omega[e] * zeta_sum
                                   - omega[e] / 2 * HTznd[e, k]) * HTznd[e, k]
-                for n in range(out_docs[d], out_docs[d + 1] - 1):
+                for n in range(out_docs[d], out_docs[d + 1]):
                     e = out_edges[n]
                     d2 = edge_head[e]
                     Nd = nd[d] * nd[d2]
