@@ -12,6 +12,19 @@ extensions = [
 ]
 
 setup(
-    name="Topic Models",
+    name='lda-cython',
+    version='0.1.0',
+    description='''Cython implementations of Gibbs sampling for latent
+    Dirichlet allocation and its supervised variants''',
+    url='https://code.savvysherpa.com/SavvysherpaResearch/lda-cython',
+    author='Berton Earnshaw',
+    author_email='bearnshaw@savvysherpa.com',
+    install_requires=[
+        'cython',
+        'cythongsl',
+        'numpy',
+        'scipy',
+        'pypolyagamma',
+    ],
     ext_modules=cythonize(extensions),
 )
