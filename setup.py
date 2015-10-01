@@ -19,6 +19,9 @@ setup(
     url='https://code.savvysherpa.com/SavvysherpaResearch/lda-cython',
     author='Berton Earnshaw',
     author_email='bearnshaw@savvysherpa.com',
+    packages=[
+        'lda_cython',
+    ],
     install_requires=[
         'cython',
         'cythongsl',
