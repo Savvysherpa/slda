@@ -932,3 +932,148 @@ def gibbs_sampler_rtm(int n_iter, int n_report_iter,
     theta = estimate_matrix(ndz, alpha, n_docs)
     phi = estimate_matrix(nzw, beta, n_topics)
     return theta, phi, np.asarray(eta), np.asarray(lL)
+
+def gibbs_sampler_blhslda(int n_iter, int n_report_iter,
+                         int n_topics, int n_docs,
+                         int n_terms, int n_tokens,
+                         double[:] alpha, double[:] beta,
+                         double mu, double nu2, double b,
+                         int[:] doc_lookup, int[:] term_lookup,
+                          int[:,:] y, int[:] hier, seed):
+    """
+    Perform (collapsed) Gibbs sampling inference for Binary Logistic HSLDA.
+    """
+
+    cdef:
+        int i, j, k, d, w, z, new_z, n_labels = y.shape[1], l, pa_l
+        double p_sum, uval, eta_sum, eta_l, l_sum, exp_eta_l
+        double sum_alpha = 0.
+        double sum_beta = 0.
+        int[:] topic_lookup = create_topic_lookup(n_tokens, n_topics, seed)
+        # log likelihoods
+        double[::1] lL = np.empty(n_iter, dtype=np.float64, order='C')
+        # number of tokens in document d assigned to topic z, shape = (n_docs, n_topics)
+        int[:, ::1] ndz = np.zeros((n_docs, n_topics), dtype=np.intc, order='C')
+        # number of tokens assigned to topic z equal to term w, shape = (n_topics, n_terms)
+        int[:, ::1] nzw = np.zeros((n_topics, n_terms), dtype=np.intc, order='C')
+        # number of tokens assigned to topic k, shape = (n_topics,)
+        int[::1] nz = np.zeros(n_topics, dtype=np.intc, order='C')
+        # number of tokens in doc d, shape = (n_docs,)
+        int[::1] nd = np.zeros(n_docs, dtype=np.intc, order='C')
+        # (weighted) probabilities for the discrete distribution
+        double[::1] p_cumsum = np.empty(n_topics, dtype=np.float64, order='C')
+        # preallocate uniformly random numbers on the interval [0, 1)
+        double[:] rands = create_rands(n_rands=n_rands, seed=seed)
+        int u = 0
+        # regression coefficients
+
+        double [:, :, ::1] eta = np.zeros((n_iter + 1, n_labels, n_topics), dtype=np.float64, order='C')
+        double [:, :, ::1] etand = np.empty((n_docs, n_labels, n_topics), dtype=np.float64, order='C')
+        double [::1] eta_mean = np.empty(n_topics, dtype=np.float64, order='C')
+
+        # omega: notice I'm initializing omega here
+        double[:, ::1] omega = np.ones((n_docs,n_labels), dtype=np.float64, order='C')
+
+        # kappa: a transformation of y
+        double[:, ::1] kappa = b * (np.asarray(y) - 0.5)
+
+        double [::1] kappa_sum = np.zeros(n_labels, dtype=np.float64, order='C')
+
+    # initialize counts
+    for j in range(n_tokens):
+        preincrement(ndz[doc_lookup[j], topic_lookup[j]])
+        preincrement(nzw[topic_lookup[j], term_lookup[j]])
+        preincrement(nz[topic_lookup[j]])
+        preincrement(nd[doc_lookup[j]])
+    # initialize sum_alpha, lBeta_alpha
+    for k in range(n_topics):
+        sum_alpha += alpha[k]
+    # initialize sum_beta, lBeta_beta
+    for w in range(n_terms):
+        sum_beta += beta[w]
+    # define numpy variables
+    Inu2 = np.identity(n_topics) / nu2
+    munu2 = np.repeat(mu / nu2, n_topics)
+    # define PolyaGamma sampler
+    pg_rng = PyPolyaGamma(seed=seed or 42)
+    # iterate
+    start_time = datetime.now()
+    print('{} start iterations'.format(start_time))
+    for i in range(n_iter):
+        # sample omega
+        for d in range(n_docs):
+            for l in range(n_labels):
+                eta_sum = 0.
+                for k in range(n_topics):
+                # initialize etand for iteration i
+                    etand[d, l, k] = eta[i, l, k] / nd[d]
+                    eta_sum += etand[d, l, k] * ndz[d, k]
+                omega[d,l] = pg_rng.pgdraw(b, eta_sum)
+
+        # sample z
+        for j in range(n_tokens):
+            d = doc_lookup[j]
+            w = term_lookup[j]
+            z = topic_lookup[j]
+            predecrement(ndz[d, z])
+            predecrement(nzw[z, w])
+            predecrement(nz[z])
+
+            for l in range(n_labels):
+                pa_l = hier[l]
+                if pa_l == -1:
+                    pa_l = l
+                if y[d, pa_l]  == 1:
+                    kappa_sum[l] = kappa[d,l]
+                    for k in range(n_topics):
+                        kappa_sum[l] -= omega[d,l] * etand[d, l, k] * ndz[d, k]
+
+            eta_l = 0.
+            for l in range(n_labels):
+                pa_l = hier[l]
+                if pa_l == -1:
+                    pa_l = l
+                if y[d, pa_l]  == 1:
+                    l_sum = 0.
+                    for k in range(n_topics):
+                        l_sum += etand[d, l, k] * \
+                                    (kappa_sum[l] - omega[d,l] / 2 * etand[d, l, k])
+                    eta_l += l_sum
+
+            p_sum = 0.
+            for k in range(n_topics):
+                p_sum += (nzw[k, w] + beta[w]) \
+                        / (nz[k] + sum_beta) \
+                        * (ndz[d, k] + alpha[k]) \
+                        * exp(eta_l)
+                p_cumsum[k] = p_sum
+            preincrement(u)
+            if u == n_rands:
+                u = 0
+            uval = rands[u] * p_sum
+            new_z = topic_lookup[j] = searchsorted(p_cumsum, uval)
+            preincrement(ndz[d, new_z])
+            preincrement(nzw[new_z, w])
+            preincrement(nz[new_z])
+        
+        #sample eta
+        Z = (np.asarray(ndz) / np.asarray(nd)[:, np.newaxis]).T
+        for l in range(n_labels):
+            Omega = np.asarray(omega[::,l])[np.newaxis, :]
+            Kappa = np.asarray(kappa[::,l])
+            eta_mean = np.linalg.solve(Inu2 + np.dot(Z * Omega, Z.T),
+                                       munu2 + np.dot(Z, Kappa))
+            # TODO currently setting eta to mean, but need to sample
+            for k in range(n_topics):
+                eta[i + 1, l, k] = eta_mean[k]
+        
+        #compute log-likelihood
+        lL[i] = loglikelihood_blhslda(nzw, ndz, nz, alpha, beta, sum_beta,
+                                      mu, nu2, b, eta[i + 1], y, Z)
+
+        # print progress
+        print_progress(start_time, n_report_iter, i, lL[i], lL[i - n_report_iter])
+    # populate the topic and word distributions
+    theta = estimate_matrix(ndz, alpha, n_docs)
+    phi = estimate_matrix(nzw, beta, n_topics)
+    return theta, phi, np.asarray(eta), np.asarray(lL)

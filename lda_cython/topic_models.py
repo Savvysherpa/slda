@@ -8,7 +8,8 @@ import numpy as np
 from scipy.sparse import issparse
 from ._topic_models import (gibbs_sampler_lda, gibbs_sampler_slda,
                             gibbs_sampler_blslda, gibbs_sampler_grtm,
-                            gibbs_sampler_rtm, iterated_pseudo_counts)
+                            gibbs_sampler_rtm, gibbs_sampler_blhslda, 
+                            iterated_pseudo_counts)
 
 
 class TopicModelBase:
@@ -464,3 +465,79 @@ class RTM(TopicModelBase):
             self.n_topics, self.n_docs, self.n_terms, self.n_tokens,
             self.alpha, self.beta, self.mu, self.sigma2, self.nu,
             doc_lookup, term_lookup, self.adjacency_matrix, self.seed)
+        
+class BLHSLDA(TopicModelBase):
+    """
+    Heirarchichal supervised latent Dirichlet allocation, using collapsed Gibbs
+    sampling implemented in Cython.
+
+    Parameters
+    ----------
+    n_topics : int
+        Number of topics
+
+    alpha : array-like, shape = (n_topics,)
+        Dirichlet distribution parameter for each document's topic
+        distribution.
+
+    gamma : array-like, shape = (n_terms,)
+        Dirichlet distribution parameter for each topic's term distribution.
+
+    mu : float
+        Mean of regression coefficients (eta).
+
+    sigma : float
+        Variance of response (y).
+
+    n_iter : int, default=500
+        Number of iterations of Gibbs sampler
+
+    n_report_iter : int, default=10
+        Number of iterations of Gibbs sampler between progress reports.
+
+    random_state : int, optional
+        Seed for random number generator
+    """
+
+    def __init__(self, n_topics, alpha, beta, mu, nu2, b, n_iter=500,
+                 n_report_iter=10, seed=None):
+        self.n_topics = n_topics
+        self.alpha = alpha
+        self.beta = beta
+        self.mu = mu
+        self.nu2 = nu2
+        self.b = b
+        self.n_iter = n_iter
+        self.n_report_iter = n_report_iter
+        self.seed = seed
+
+    def fit(self, X, y, hier):
+        """
+        Estimate the topic distributions per document (theta), term
+        distributions per topic (phi), and regression coefficients (eta).
+
+        Parameters
+        ----------
+        X : array-like, shape = (n_docs, n_terms)
+            The document-term matrix.
+
+        y : array-like, shape = (n_docs, n_labels)
+            Response values for each document for each labels.
+            
+        hier : 1D array-like, size = n_labels
+                The index of the list corresponds to the current label
+                and the value of the indexed position is the parent of the label.
+                Set -1 as the root.
+        """
+
+        self.doc_term_matrix = X
+        self.n_docs, self.n_terms = X.shape
+        self.n_tokens = X.sum()
+        doc_lookup, term_lookup = self._create_lookups(X)
+
+        # iterate
+        self.theta, self.phi, self.eta, self.loglikelihoods = gibbs_sampler_blhslda(
+            self.n_iter, self.n_report_iter,
+            self.n_topics, self.n_docs, self.n_terms, self.n_tokens,
+            self.alpha, self.beta, self.mu, self.nu2, self.b, doc_lookup,
+            term_lookup, np.ascontiguousarray(y, dtype=np.intc), np.ascontiguousarray(hier, dtype=np.intc),self.seed)
