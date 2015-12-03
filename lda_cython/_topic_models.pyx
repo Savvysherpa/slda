@@ -939,7 +939,7 @@ def gibbs_sampler_blhslda(int n_iter, int n_report_iter,
                          double[:] alpha, double[:] beta,
                          double mu, double nu2, double b,
                          int[:] doc_lookup, int[:] term_lookup,
-                          int[:,:] y, int[:] hier, seed):
+                         int[:,:] y, int[:] hier, seed):
     """
     Perform (collapsed) Gibbs sampling inference for Binary Logistic HSLDA.
     """
