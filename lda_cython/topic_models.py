@@ -468,7 +468,7 @@ class RTM(TopicModelBase):
         
 class BLHSLDA(TopicModelBase):
     """
-    Heirarchichal supervised latent Dirichlet allocation, using collapsed Gibbs
+    Binary Logistic Heirarchical supervised latent Dirichlet allocation, using collapsed Gibbs
     sampling implemented in Cython.
 
     Parameters
@@ -480,14 +480,17 @@ class BLHSLDA(TopicModelBase):
         Dirichlet distribution parameter for each document's topic
         distribution.
 
-    gamma : array-like, shape = (n_terms,)
+    beta : array-like, shape = (n_terms,)
         Dirichlet distribution parameter for each topic's term distribution.
 
     mu : float
         Mean of regression coefficients (eta).
 
-    sigma : float
-        Variance of response (y).
+    nu2 : float
+        Variance of regression coefficients (eta).
+
+    b : float
+        Regularization parameter.
 
     n_iter : int, default=500
         Number of iterations of Gibbs sampler
