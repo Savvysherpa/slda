@@ -240,6 +240,40 @@ cdef double loglikelihood_rtm(int[:, :] nzw, int[:, :] ndz, int[:] nz,
         ll += eta[k] * bold_z[k] / nu - (eta[k] - mu) * (eta[k] - mu) / 2 / sigma2
     return ll
 
+cdef double loglikelihood_blhslda(int[:, :] nzw, int[:, :] ndz, int[:] nz,
+                                 double[:] alpha, double[:] beta, double sum_beta,
+                                 double mu, double nu2, double b,
+                                 double[:,:] eta, int[:,:] y, double[:, :] Z):
+    """
+    Log likelihood calculation for binary logistic hierarchical supervised LDA.
+
+    This is not an exact calculation (constants not included).
+    """
+
+    cdef int k, d, l
+    cdef int n_docs = ndz.shape[0]
+    cdef int n_topics = ndz.shape[1]
+    cdef int n_terms = nzw.shape[1]
+    cdef int n_labels = eta.shape[0]
+    cdef double ll = 0.
+    cdef double eta_z = 0.
+    # calculate log p(w|z) and log p(eta)
+    for l in range(n_labels):
+        for k in range(n_topics):
+            ll -= lngamma(sum_beta + nz[k])
+            ll -= (eta[l, k] - mu) * (eta[l, k] - mu) / 2 / nu2
+            for w in range(n_terms):
+                ll += lngamma(beta[w] + nzw[k, w])
+    # calculate log p(z) and log p(y|eta, z)
+    for d in range(n_docs):
+        eta_z = 0.
+        for l in range(n_labels):
+            for k in range(n_topics):
+                eta_z += eta[l, k] * Z[k, d]
+                ll += lngamma(alpha[k] + ndz[d, k])
+            ll += b * (y[d,l] * eta_z - ln(1 + exp(eta_z)))
+    return ll
+
 
 cdef print_progress(start_time, int n_report_iter, int i,
                     double lL_now, double lL_last):
