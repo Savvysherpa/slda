@@ -1,0 +1,13 @@
+name: lda-cython
+dependencies:
+  - cython
+  - jupyter
+  - matplotlib
+  - numpy
+  - python
+  - scikit-learn
+  - scipy
+  - seaborn
+  - pip:
+      - cythongsl
+#      - pypolyagamma

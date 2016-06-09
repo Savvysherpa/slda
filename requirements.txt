@@ -1,6 +1,0 @@
-Cython==0.23.2
-CythonGSL==0.2.1
-lda-cython==0.1.0
-numpy==1.9.3
-pypolyagamma==0.2
-scipy==0.16.0

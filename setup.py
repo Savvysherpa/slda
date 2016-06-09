@@ -1,5 +1,4 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 import numpy
 import cython_gsl
@@ -9,6 +8,8 @@ extensions = [
               libraries=cython_gsl.get_libraries(),
               library_dirs=[cython_gsl.get_library_dir()],
               include_dirs=[numpy.get_include(), cython_gsl.get_include()]),
+    Extension('pypolyagamma.pypolyagamma', ['pypolyagamma/pypolyagamma.pyx'],
+              include_dirs=[numpy.get_include(), 'pypolyagamma/pypolyagamma/cpp/include',]),
 ]
 
 setup(
@@ -21,13 +22,14 @@ setup(
     author_email='bearnshaw@savvysherpa.com',
     packages=[
         'lda_cython',
+        'pypolyagamma',
     ],
     install_requires=[
-        'cython',
+        'cython >= 0.20.1',
         'cythongsl',
         'numpy',
         'scipy',
-        'pypolyagamma',
     ],
     ext_modules=cythonize(extensions),
+    include_package_data=True,
 )
