@@ -1,4 +1,4 @@
-# lda-cython
+# slda
 This repo contains [Cython](http://cython.org/) implementations of [Gibbs
 sampling](https://en.wikipedia.org/wiki/Gibbs_sampling) for [latent Dirichlet
 allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) and its
@@ -53,28 +53,28 @@ First create the conda environment by running
  ```bash
  $ conda env create
  ```
-This will install a conda environment called `lda-cython`, defined in
+This will install a conda environment called `slda`, defined in
 `environment.yml`, that contains all the dependencies. Activate it by running
  ```bash
- $ source activate lda-cython
+ $ source activate slda
  ```
 Next we need to compile the C code in this repository. To do this, run
 ```bash
 $ python setup.py build_ext --inplace
 ```
 
-#### pip install lda-cython from source
+#### pip install slda from source
 
-If you want lda-cython installed in your environment, run:
+If you want slda installed in your environment, run:
 ```bash
-$ pip install /path/to/lda-cython
+$ pip install /path/to/slda
 ```
 
 ## tests
 
 To run the tests, run
 ```bash
-$ py.test lda_cython
+$ py.test slda
 ```
 This may take as long as 15 minutes, so be patient.
 
