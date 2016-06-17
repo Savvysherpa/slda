@@ -1,8 +1,13 @@
 # slda
-This repo contains [Cython](http://cython.org/) implementations of [Gibbs
+This repository contains [Cython](http://cython.org/) implementations of [Gibbs
 sampling](https://en.wikipedia.org/wiki/Gibbs_sampling) for [latent Dirichlet
-allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) and its
-supervised variants.
+allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) and
+various supervised LDAs:
+
+- supervised LDA (linear regression)
+- binary logistic supervised LDA (logistic regression)
+- binary logistic hierarchical supervised LDA (trees)
+- generalized relational topic models (graphs)
 
 
 ## Installation
@@ -63,14 +68,14 @@ Next we need to compile the C code in this repository. To do this, run
 $ python setup.py build_ext --inplace
 ```
 
-#### pip install slda from source
+#### pip install slda
 
 If you want slda installed in your environment, run:
 ```bash
-$ pip install /path/to/slda
+$ pip install .
 ```
 
-## tests
+## Tests
 
 To run the tests, run
 ```bash
