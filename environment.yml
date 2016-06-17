@@ -4,10 +4,10 @@ dependencies:
   - jupyter
   - matplotlib
   - numpy
+  - pytest
   - python
   - scikit-learn
   - scipy
   - seaborn
   - pip:
       - cythongsl
-#      - pypolyagamma

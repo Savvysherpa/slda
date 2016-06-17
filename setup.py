@@ -7,9 +7,7 @@ extensions = [
     Extension('lda_cython._topic_models', ['lda_cython/_topic_models.pyx'],
               libraries=cython_gsl.get_libraries(),
               library_dirs=[cython_gsl.get_library_dir()],
-              include_dirs=[numpy.get_include(), cython_gsl.get_include()]),
-    Extension('pypolyagamma.pypolyagamma', ['pypolyagamma/pypolyagamma.pyx'],
-              include_dirs=[numpy.get_include(), 'pypolyagamma/pypolyagamma/cpp/include',]),
+              include_dirs=[numpy.get_include(), cython_gsl.get_include()],),
 ]
 
 setup(
@@ -22,7 +20,6 @@ setup(
     author_email='bearnshaw@savvysherpa.com',
     packages=[
         'lda_cython',
-        'pypolyagamma',
     ],
     install_requires=[
         'cython >= 0.20.1',

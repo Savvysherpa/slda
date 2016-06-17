@@ -4,6 +4,7 @@ __pycache__/
 
 # C extensions
 *.so
+*.c
 
 # Distribution / packaging
 .Python
@@ -55,3 +56,5 @@ docs/_build/
 
 # PyBuilder
 target/
+
+*.ipynb_checkpoints

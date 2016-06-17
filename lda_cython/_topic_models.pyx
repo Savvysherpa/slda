@@ -1089,7 +1089,7 @@ def gibbs_sampler_blhslda(int n_iter, int n_report_iter,
             preincrement(ndz[d, new_z])
             preincrement(nzw[new_z, w])
             preincrement(nz[new_z])
-        
+
         #sample eta
         Z = (np.asarray(ndz) / np.asarray(nd)[:, np.newaxis]).T
         for l in range(n_labels):
@@ -1100,7 +1100,7 @@ def gibbs_sampler_blhslda(int n_iter, int n_report_iter,
             # TODO currently setting eta to mean, but need to sample
             for k in range(n_topics):
                 eta[i + 1, l, k] = eta_mean[k]
-        
+
         #compute log-likelihood
         lL[i] = loglikelihood_blhslda(nzw, ndz, nz, alpha, beta, sum_beta,
                                       mu, nu2, b, eta[i + 1], y, Z)
