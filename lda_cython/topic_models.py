@@ -5,14 +5,15 @@ Draws from Allen Riddell's LDA library https://github.com/ariddell/lda
 """
 
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 from scipy.sparse import issparse
 from ._topic_models import (gibbs_sampler_lda, gibbs_sampler_slda,
                             gibbs_sampler_blslda, gibbs_sampler_grtm,
-                            gibbs_sampler_rtm, gibbs_sampler_blhslda, 
+                            gibbs_sampler_rtm, gibbs_sampler_blhslda,
                             iterated_pseudo_counts)
 
 
-class TopicModelBase:
+class TopicModelBase(BaseEstimator, TransformerMixin):
     """
     Base class for topic models.
     """
@@ -388,11 +389,11 @@ class GRTM(TopicModelBase):
         in_docs, in_edges = self._create_edges(y_rec, order='head')
         # iterate
         self.theta, self.phi, self.H, self.loglikelihoods = gibbs_sampler_grtm(
-            self.n_iter, self.n_report_iter,
-            self.n_topics, self.n_docs, self.n_terms, self.n_tokens, self.n_edges,
-            self.alpha, self.beta, self.mu, self.nu2, self.b,
-            doc_lookup, term_lookup, out_docs, out_edges, in_docs, in_edges,
-            edge_tail, edge_head, edge_data, self.seed)
+            self.n_iter, self.n_report_iter, self.n_topics, self.n_docs,
+            self.n_terms, self.n_tokens, self.n_edges, self.alpha, self.beta,
+            self.mu, self.nu2, self.b, doc_lookup, term_lookup, out_docs,
+            out_edges, in_docs, in_edges, edge_tail, edge_head, edge_data,
+            self.seed)
 
 
 class RTM(TopicModelBase):
@@ -465,11 +466,12 @@ class RTM(TopicModelBase):
             self.n_topics, self.n_docs, self.n_terms, self.n_tokens,
             self.alpha, self.beta, self.mu, self.sigma2, self.nu,
             doc_lookup, term_lookup, self.adjacency_matrix, self.seed)
-        
+
+
 class BLHSLDA(TopicModelBase):
     """
-    Binary Logistic Heirarchical supervised latent Dirichlet allocation, using collapsed Gibbs
-    sampling implemented in Cython.
+    Binary Logistic Heirarchical supervised latent Dirichlet allocation, using
+    collapsed Gibbs sampling implemented in Cython.
 
     Parameters
     ----------
@@ -526,10 +528,10 @@ class BLHSLDA(TopicModelBase):
 
         y : array-like, shape = (n_docs, n_labels)
             Response values for each document for each labels.
-            
+
         hier : 1D array-like, size = n_labels
-                The index of the list corresponds to the current label
-                and the value of the indexed position is the parent of the label.
+            The index of the list corresponds to the current label
+            and the value of the indexed position is the parent of the label.
                 Set -1 as the root.
         """
 
@@ -543,4 +545,5 @@ class BLHSLDA(TopicModelBase):
             self.n_iter, self.n_report_iter,
             self.n_topics, self.n_docs, self.n_terms, self.n_tokens,
             self.alpha, self.beta, self.mu, self.nu2, self.b, doc_lookup,
-            term_lookup, np.ascontiguousarray(y, dtype=np.intc), np.ascontiguousarray(hier, dtype=np.intc),self.seed)
+            term_lookup, np.ascontiguousarray(y, dtype=np.intc),
+            np.ascontiguousarray(hier, dtype=np.intc), self.seed)

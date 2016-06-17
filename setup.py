@@ -25,6 +25,7 @@ setup(
         'cython >= 0.20.1',
         'cythongsl',
         'numpy',
+        'scikit-learn',
         'scipy',
     ],
     ext_modules=cythonize(extensions),
