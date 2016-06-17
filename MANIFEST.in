@@ -1,4 +1,0 @@
-recursive-include pypolyagamma/pypolyagamma *.pyx
-recursive-include pypolyagamma/pypolyagamma *.cpp
-recursive-include pypolyagamma/pypolyagamma *.h
-recursive-include pypolyagamma/pypolyagamma *.hpp

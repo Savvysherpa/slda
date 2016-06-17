@@ -11,3 +11,4 @@ dependencies:
   - seaborn
   - pip:
       - cythongsl
+      - pypolyagamma-3

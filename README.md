@@ -4,6 +4,7 @@ sampling](https://en.wikipedia.org/wiki/Gibbs_sampling) for [latent Dirichlet
 allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) and its
 supervised variants.
 
+
 ## Installation
 
 ### Dependencies
@@ -15,53 +16,71 @@ it. For macosx users using [homebrew](http://brew.sh/), this is as simple as
 $ brew install gsl
 ```
 
-#### pypolyagamma
-This package depends on [pypolyagamma](https://github.com/slinderman/pypolyagamma),
-which is a bit of a pain for two reasons:
-
- 1. The `pypolyagamma` module that is installed using pip does not have Python 3
- support. However, there is a
- [fork](https://github.com/marekpetrik/pypolyagamma) that does. So if you want
- Python 3 support, you are going to have to clone this
- [fork](https://github.com/marekpetrik/pypolyagamma) and pip install it from the
- repo's main directory like this:
- ```bash
- $ pip install /path/to/pypolyagamma/
- ```
-
- 1. `pypolyagamma` requies a C/C++ compiler with [OpenMP](http://openmp.org/)
- support. Unfortunately for macosx users, Apple's native compiler, clang, does
- not ship with that support, so you need to install and use one that does. For
- macosx users using [homebrew](http://brew.sh/), this is as simple as
+#### pypolyagamma-3 and gcc
+This package depends on [pypolyagamma-3](https://github.com/Savvysherpa/pypolyagamma),
+which is a bit of a pain because `pypolyagamma-3` requies a C/C++ compiler with
+[OpenMP](http://openmp.org/) support. Unfortunately for macosx users, Apple's native
+compiler, clang, does not ship with that support, so you need to install and
+use one that does. For macosx users using [homebrew](http://brew.sh/),
+this is as simple as:
  ```bash
  $ brew install gcc --without-multilib
  ```
- This will install a version of gcc with OpenMP support. However, Apple makes
- things worse by aliasing gcc to point to clang! So you need to explicitly tell
- pip which gcc compiler to use. As of the writing of this README, brew installs
- major version 5 of gcc, and as a result will create a binary called gcc-5 in
- your path. So pip install `pypolyagamma` as follows:
+This will install a version of `gcc` with OpenMP support. However, Apple makes
+things worse by aliasing gcc to point to clang! So you need to explicitly tell
+the shell which gcc compiler to use. As of the writing of this README, brew
+installs major version 6 of gcc, and as a result will create a binary called
+gcc-6 in your path. So export the following to your shell
  ```bash
- $ CC=gcc-5 CXX=gcc-5 pip install pypolyagamma
+ $ export CC=gcc-6 CXX=g++-6
  ```
- or if you are installing directly from code for Python 3 support:
- ```bash
- $ CC=gcc-5 CXX=gcc-5 pip install /path/to/pypolyagamma/
- ```
+or you can prefix the commands below with `CC=gcc-6 CXX=g++-6`.
+
+As a result of this export, it may turn out that your shell cannot find the
+libraries associated with gcc. If this is the case, specify the path to your gcc
+library in the environment variable `DYLD_LIBRARY_PATH`. For example, if
+you used `brew` to install gcc as above, then this is probably the right thing
+to do:
+```bash
+$ export DYLD_LIBRARY_PATH=/usr/local/Cellar/gcc/6.1.0/lib/gcc/6/
+```
 
 ### Instructions
 
-We first need to compile the C code in this repository.  To do this, clone this
-repository to your local machine, change into the main directory, start up a
-virtualenv, make sure that Cython, CythonGSL and Numpy are installed (all listed
-in `requirements.txt`), and run
+#### Conda environment
+
+First create the conda environment by running
+ ```bash
+ $ conda env create
+ ```
+This will install a conda environment called `lda-cython`, defined in
+`environment.yml`, that contains all the dependencies. Activate it by running
+ ```bash
+ $ source activate lda-cython
+ ```
+Next we need to compile the C code in this repository. To do this, run
 ```bash
 $ python setup.py build_ext --inplace
 ```
-Now you can pip install lda-cython:
+
+#### pip install lda-cython from source
+
+If you want lda-cython installed in your environment, run:
 ```bash
-$ CC=gcc-5 CXX=gcc-5 pip install /path/to/lda-cython
+$ pip install /path/to/lda-cython
 ```
-Again, the C flags are required for pypolyagamma, as I've explained above. If
-you want Python 3 support, you need to install pypolyagamma, as described above,
-before pip installing lda-cython.
+
+## tests
+
+To run the tests, run
+```bash
+$ py.test lda_cython
+```
+This may take as long as 15 minutes, so be patient.
+
+## License
+
+This code is open source under the MIT license.
+
+Many thanks to [Allen Riddell](https://github.com/ariddell) and his [LDA
+library](https://github.com/ariddell/lda) for inspiration (and code :)
