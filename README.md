@@ -9,6 +9,7 @@ various supervised LDAs:
 - binary logistic hierarchical supervised LDA (trees)
 - generalized relational topic models (graphs)
 
+[![Build Status](https://travis-ci.org/Savvysherpa/slda.png)](https://travis-ci.org/Savvysherpa/slda)
 
 ## Installation
 
