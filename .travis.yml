@@ -13,7 +13,7 @@ addons:
       - libgsl0-dev
 
 env:
-  - CC=gcc-6 CXX=g++-6
+  - CC=gcc-6 CXX=g++-6 USE_CYTHON=True
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html

@@ -1,14 +1,15 @@
 name: slda
+channels:
+  - conda-forge
 dependencies:
   - cython
   - jupyter
   - matplotlib
   - numpy
+  - pypolyagamma
   - pytest
   - python
   - scikit-learn
   - scipy
   - seaborn
-  - pip:
-      - cythongsl
-      - pypolyagamma-3
+  - cythongsl

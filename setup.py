@@ -1,36 +1,52 @@
+import os
+
 from setuptools import setup
 from setuptools.extension import Extension
-from Cython.Build import cythonize
-import numpy
-import cython_gsl
+
+try:
+    import numpy as np
+    import cython_gsl
+except ImportError:
+    print("Please install numpy and cythongsl.")
+
+# Dealing with Cython
+USE_CYTHON = os.environ.get('USE_CYTHON', False)
+ext = '.pyx' if USE_CYTHON else '.c'
 
 extensions = [
-    Extension('slda._topic_models', ['slda/_topic_models.pyx'],
+    Extension('slda._topic_models', ['slda/_topic_models' + ext],
               libraries=cython_gsl.get_libraries(),
               library_dirs=[cython_gsl.get_library_dir()],
-              include_dirs=[numpy.get_include(), cython_gsl.get_include()],),
+              include_dirs=[np.get_include(), cython_gsl.get_include()],),
 ]
+
+if USE_CYTHON:
+    from Cython.Build import cythonize
+    extensions = cythonize(extensions)
 
 setup(
     name='slda',
-    version='0.1.3',
+    version='0.1.5',
     description='''Cython implementations of Gibbs sampling for latent
-    Dirichlet allocation and its supervised variants''',
-    url='https://code.savvysherpa.com/SavvysherpaResearch/slda',
+                   Dirichlet allocation and its supervised variants''',
     author='Berton Earnshaw, Mimi Felicilda',
     author_email='bearnshaw@savvysherpa.com, lfelicilda@savvysherpa.com',
-    packages=[
-        'slda',
-    ],
+    url='https://github.com/Savvysherpa/slda',
+    license="MIT",
+    packages=['slda'],
+    ext_modules=extensions,
     install_requires=[
         'Cython >= 0.20.1',
         'cythongsl',
         'numpy',
-        'pypolyagamma-3',
+        'pypolyagamma',
         'pytest',
         'scikit-learn',
         'scipy',
     ],
-    ext_modules=cythonize(extensions),
+    classifiers=[
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python',],
     keywords=['lda', 'slda', 'supervised', 'latent', 'Dirichlet', 'allocation'],
+    platforms='ALL',
 )
