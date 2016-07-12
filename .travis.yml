@@ -2,18 +2,8 @@
 
 language: python
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-6
-      - g++-6
-      - gsl-bin
-      - libgsl0-dev
-
 env:
-  - CC=gcc-6 CXX=g++-6 USE_CYTHON=True
+  - USE_CYTHON=True
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html
