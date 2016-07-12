@@ -26,7 +26,7 @@ if USE_CYTHON:
 
 setup(
     name='slda',
-    version='0.1.5',
+    version='0.1.6',
     description='''Cython implementations of Gibbs sampling for latent
                    Dirichlet allocation and its supervised variants''',
     author='Berton Earnshaw, Mimi Felicilda',
