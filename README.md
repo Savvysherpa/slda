@@ -13,6 +13,12 @@ various supervised LDAs:
 
 ## Installation
 
+### The easy way
+Use the conda-forge version [here](https://github.com/conda-forge/slda-feedstock).
+
+### The hard way...
+(Kept for posterity's sake.)
+
 ### Dependencies
 
 #### GNU Scientific Library
