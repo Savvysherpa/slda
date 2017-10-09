@@ -8,7 +8,7 @@ dependencies:
   - numpy
   - pypolyagamma
   - pytest
-  - python
+  - python=3
   - scikit-learn
   - scipy
   - seaborn
